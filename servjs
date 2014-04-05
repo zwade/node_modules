@@ -43,6 +43,7 @@ var getMime = function(str) {
 		case "txt":
 			return "text/plain"
 		case "js":
+		case "min":
 		case "json":
 			return "application/javascript"
 		case "gif":
