@@ -8,10 +8,10 @@ Node.js Utility Modules
 
  - scalePNG  =>  scales up a PNG to be a specific size without interpolating and causing bluriness. Designed for creating pixel art
 
-=======================
+-----------------------
 
 Libraries
 
------------------------
+=======================
 
  - pngjs  => used by scalePNG
