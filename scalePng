@@ -1,0 +1,71 @@
+#!/usr/local/bin/node
+
+var fs = require('fs'),
+    PNG = require('pngjs').PNG;
+ 
+var image = [];
+var factor = 2;
+
+if (process.argv.length < 5) {
+	console.log("Usage: pngScale <inputfile> <outputfile> <scale>")
+	return;
+}
+
+input = process.argv[2]
+output = process.argv[3]
+factor = process.argv[4] || factor;
+
+fs.createReadStream(input)
+    .pipe(new PNG({
+        filterType: 4,
+    }))
+    .on('parsed', function() {
+    	var image = [];
+
+        for (var y = 0; y < this.height; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var idx = (this.width * y + x) << 2;
+
+		image[idx] = this.data[idx];
+		image[idx+1] = this.data[idx+1];
+		image[idx+2] = this.data[idx+2];
+		image[idx+3] = this.data[idx+3];
+
+                // invert color
+                //this.data[idx] = 255 - this.data[idx];
+                //this.data[idx+1] = 255 - this.data[idx+1];
+                //this.data[idx+2] = 255 - this.data[idx+2];
+
+                // and reduce opacity
+                //this.data[idx+3] = this.data[Math.floor((idx+3)/16)] >> 1;
+            }
+        }
+
+	handleImage(image, this.width, this.height);
+
+        //this.pack().pipe(fs.createWriteStream('out.png'));
+    });
+
+handleImage = function(image, w, h) {
+	png = new PNG({
+		filterType: -1,
+		width: w*factor,
+		height: h*factor,
+	})
+
+	for (i = 0; i < h; i++) {
+		for (j = 0; j < w; j++) {
+			for (a = 0; a < factor; a++) { 
+				for (b = 0; b < factor; b++) {
+					base = (i*factor+a)*(w*factor*4)+(j*factor+b)*4
+					imgbase = (w*i+j) << 2;
+					png.data[base+0] = image[imgbase+0];
+					png.data[base+1] = image[imgbase+1];
+					png.data[base+2] = image[imgbase+2];
+					png.data[base+3] = image[imgbase+3];
+				}
+			}
+		}
+	}
+	png.pack().pipe(fs.createWriteStream(output));	
+}
