@@ -2,7 +2,7 @@
 
 var http = require("http")
 var fs = require("fs")
-var ws = require("node_modules/ws").Server
+var ws = require("ws").Server
 
 var watchedFiles = [];
 var conns = [];
@@ -30,6 +30,7 @@ console.log('Server running');
 
 var watchFile = function(fn) {
 	if (watchedFiles.indexOf(fn) < 0) {
+		watchedFiles.push(fn);
 		fs.watchFile(fn, {persistent: true, interval: 300}, function() {
 			fileUpdated(fn);
 		})
@@ -55,7 +56,7 @@ var fileUpdated = function(fn) {
 
 var getFile = function(url,cb) {
 	if (url == "debug.js") {
-		url = __dirname+"\\debug.js";
+		url = __dirname+"/debug.js";
 		console.log(url);
 	}	
 	fs.readFile(url, function(err, data) {
